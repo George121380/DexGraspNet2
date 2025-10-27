@@ -1,0 +1,39 @@
+batch_size: 64
+ckpt: null
+data:
+  voxel_size: 0.005
+  num_points: 8192
+  pc_path: /media/george/Projects/Research/2026-CVPR-BiDexHand/affordance-bidex/data/preprocess_data/pot_data/train/100015/obj_points.npy
+  pairs_path: /media/george/Projects/Research/2026-CVPR-BiDexHand/affordance-bidex/data/preprocess_data/pot_data/train/100015/grasp_pairs.npy
+exp_name: bimanual_full_kp_scaleup
+gpu: 0
+grad_clip: 10.0
+log_every: 1000
+lr: 0.0005
+lr_min: 1.0e-07
+max_iter: 50000
+model:
+  type: bimanual_diff
+  backbone: sparseconv
+  backbone_parameters:
+    sparseconv: {}
+    sparse_glob_conv: {}
+  feature_dim: 256
+  joint_num: 22
+  use_keypoints: true  # set false for point-cloud-only baseline
+  diffusion:
+    scheduler_type: DDPMScheduler
+    scheduler:
+      num_train_timesteps: 1000
+      prediction_type: v_prediction
+    num_inference_timesteps: 50
+  weight:
+    diffusion: 1.0
+num_workers: 8
+save_every: 1000
+seed: 0
+train_split: train
+val_every: 5000
+val_num: 1
+val_split: []
+

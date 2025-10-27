@@ -14,6 +14,7 @@ from math import sqrt
 
 from src.network.model import get_model
 from src.utils.dataset import GraspNetDataset, Loader, minkowski_collate_fn
+from src.utils.dataset_bimanual import BimanualDataset, minkowski_collate_fn_biman
 from src.utils.logger import Logger
 from src.utils.config import load_config, add_argparse
 from src.utils.util import set_seed
@@ -46,10 +47,16 @@ def main():
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
     # loading data, val loader can have multiple splits
-    train_dataset = GraspNetDataset(config, config.train_split, is_train=True)
-    val_datasets = [GraspNetDataset(config, split, is_train=False) for split in config.val_split]
-    train_loader = Loader(DataLoader(train_dataset, batch_size=config.batch_size, drop_last=True, num_workers=config.num_workers, shuffle=True, collate_fn=minkowski_collate_fn))
-    val_loader = [Loader(DataLoader(dataset, batch_size=config.batch_size, drop_last=True, num_workers=config.num_workers, shuffle=True, collate_fn=minkowski_collate_fn)) for dataset in val_datasets]
+    if config.model.type == 'bimanual_diff':
+        train_dataset = BimanualDataset(config, config.train_split, is_train=True)
+        val_datasets = []
+        train_loader = Loader(DataLoader(train_dataset, batch_size=config.batch_size, drop_last=True, num_workers=config.num_workers, shuffle=True, collate_fn=minkowski_collate_fn_biman))
+        val_loader = []
+    else:
+        train_dataset = GraspNetDataset(config, config.train_split, is_train=True)
+        val_datasets = [GraspNetDataset(config, split, is_train=False) for split in config.val_split]
+        train_loader = Loader(DataLoader(train_dataset, batch_size=config.batch_size, drop_last=True, num_workers=config.num_workers, shuffle=True, collate_fn=minkowski_collate_fn))
+        val_loader = [Loader(DataLoader(dataset, batch_size=config.batch_size, drop_last=True, num_workers=config.num_workers, shuffle=True, collate_fn=minkowski_collate_fn)) for dataset in val_datasets]
 
     # model and optimizer
     config.model['voxel_size'] = config.data.voxel_size

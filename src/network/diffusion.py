@@ -2,6 +2,16 @@ import os
 import numpy as np
 import torch
 from torch import nn
+# compatibility shim for older diffusers expecting huggingface_hub.cached_download
+try:
+    import huggingface_hub as _hf
+    if not hasattr(_hf, 'cached_download'):
+        from huggingface_hub import hf_hub_download as _hf_hub_download
+        def cached_download(*args, **kwargs):
+            return _hf_hub_download(*args, **kwargs)
+        _hf.cached_download = cached_download  # type: ignore[attr-defined]
+except Exception:
+    pass
 import diffusers
 from diffusers.schedulers.scheduling_ddpm import DDPMScheduler
 from diffusers.schedulers.scheduling_euler_discrete import EulerDiscreteScheduler
