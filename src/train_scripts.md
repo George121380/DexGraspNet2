@@ -1,0 +1,1 @@
+  python -u src/train.py --type bimanual_diff --backbone pointnet2 --yaml configs/network/train_bimanual.yaml --exp_name bidex_pointnet2_full
